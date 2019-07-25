@@ -28,6 +28,11 @@ class Course(models.Model):
         related_name='courses_created',
         on_delete=models.CASCADE
     )
+    students = models.ManyToManyField(
+        User,
+        related_name='courses_joined',
+        blank=True
+    )
     subject = models.ForeignKey(
         Subject,
         related_name='courses',
