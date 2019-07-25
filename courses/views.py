@@ -1,6 +1,7 @@
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from django.apps import apps
+from django.db.models import Count
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.forms.models import modelform_factory
@@ -8,12 +9,36 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import (CreateView,
                                        UpdateView,
                                        DeleteView)
+from django.views.generic.detail import DetailView
 from django.shortcuts import redirect, get_object_or_404
-from django.views.generic.base import TemplateResponseMixin, View
 from django.urls import reverse_lazy
+from django.views.generic.base import TemplateResponseMixin, View
 
-from .models import Course, Module, Content
+from .models import Course, Module, Content, Subject
 from .forms import ModuleFormSet
+
+
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = 'courses/course/detail.html'
+
+
+class CourseListView(TemplateResponseMixin, View):
+    model = Course
+    template_name = 'courses/course/list.html'
+
+    def get(self, request, subject=None):
+        subjects = Subject.objects.annotate(
+            total_courses=Count('courses'))
+        courses = Course.objects.annotate(
+            total_modules=Count('modules'))
+
+        if subject:
+            subject = get_object_or_404(Subject, slug=subject)
+            courses = courses.filter(subject=subject)
+        return self.render_to_response({'subjects': subjects,
+                                        'subject': subject,
+                                        'courses': courses})
 
 
 class ModuleOrderView(CsrfExemptMixin, JsonRequestResponseMixin, View):
