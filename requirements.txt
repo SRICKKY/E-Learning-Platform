@@ -3,7 +3,7 @@ bpython==0.18
 certifi==2019.6.16
 chardet==3.0.4
 curtsies==0.3.0
-Django==2.2.4
+Django==2.2.20
 django-braces==1.13.0
 django-embed-video==1.1.2
 django-memcache-status==1.3
